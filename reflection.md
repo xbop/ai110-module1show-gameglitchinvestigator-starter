@@ -6,7 +6,17 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 
 - What did the game look like the first time you ran it?
 - List at least two concrete bugs you noticed at the start  
-  (for example: "the secret number kept changing" or "the hints were backwards").
+  (for example: "the hints were backwards").
+
+**Bug Reproduction Log**
+
+Document at least 3 bugs you found. Add rows as needed.
+
+| Input | Expected Behavior | Actual Behavior | Console Output / Error |
+|-------|-------------------|-----------------|------------------------|
+| Submit an integer guess on an even-numbered attempt | Compare the guess and secret numerically | The secret was converted to a string; the fallback compared digit strings lexicographically, so the hint could be wrong | The `TypeError` was caught; no error was shown in the app |
+| Guess above the secret (for example, 60 when the secret is 50) | Show “Go LOWER!” | The game showed “Go HIGHER!” | None |
+| Start a new game after changing to Easy | Choose and display a secret in the 1–20 range | The displayed range stayed 1–100, and the new secret was chosen from 1–100 | None |
 
 - When in "Normal" mode, I kept getting the same hint to go lower no matter how low I went. I would expect the game to accurately determine whether the correct answer is higher or lower than my inputted guess.
 - When in "Easy" mode, I kept getting the same hint to go higher no matter how high I went. I would expect the game to accurately determine whether the correct answer is higher or lower than my inputted guess.
@@ -15,9 +25,9 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 
 ## 2. How did you use AI as a teammate?
 
-- Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)? Claude
-- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result). Saying to swap the "Go Lower" and "Go Higher" messages.
-- Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result). Saying to convert variables to string when it should've been int.
+- Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)? Claude.
+- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result). It suggested swapping the “Go Lower” and “Go Higher” messages. I verified the change by testing guesses above and below the secret and confirming each hint pointed toward it.
+- Give one example of an AI suggestion you did not accept as written (including what the AI suggested, why you rejected or changed it, and how you verified your version). The suggestion to convert the secret to a string was not appropriate: it caused numeric comparisons to fail and the fallback compared strings lexicographically. I kept both values as integers and verified the comparison and hint behavior with tests and a live game.
 
 ---
 
@@ -32,10 +42,8 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 
 ## 4. What did you learn about Streamlit and state?
 
-- In your own words, explain why the secret number kept changing in the original app. The secret number's value stays the same, but the version of it passed into check_guess alternates between int and str every attempt. Since comparing an int to a string produces completely different results than comparing two ints, the game's responses are inconsistent.
-- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?  Streamlit works very differently from a traditional app. Every single time you interact with anything such as clicking a button, typing in a box, or changing a dropdown, Streamlit reruns your entire script from top to bottom. That means any normal Python variable like `secret = random.randint(1, 100)` would be reassigned to a fresh random number on every click.
-
-- What change did you make that finally gave the game a stable secret number? The fix is removing the str() conversion so the secret is always compared as a plain integer.
+- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit? Streamlit reruns the script from top to bottom after interactions such as clicking a button or changing a selection. Regular local variables are recreated during that rerun, while values stored in `st.session_state` persist for that user's session.
+- The secret itself did not change on every rerun because it was already kept in session state. The bug was that every other guess passed it to `check_guess` as a string instead of an integer, which led to incorrect comparisons and hints. Keeping both values as integers fixed the comparison.
 
 ---
 

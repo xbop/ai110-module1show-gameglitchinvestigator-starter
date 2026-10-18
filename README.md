@@ -30,26 +30,23 @@ It wrote the code, ran away, and now the game is unplayable.
   feedback to find a randomly selected number before running out of attempts.
   The game tracks guesses and score, and reveals the secret when the player
   wins or loses.
-- [x] **Bugs found:** In the broken version, the secret could be regenerated
-  during Streamlit reruns, making it seem to change between guesses. The
-  higher/lower feedback was also unreliable: comparison and hint logic could
-  disagree, including when the secret and guess were different types. The
-  displayed guess range could be out of sync with the selected difficulty,
-  and game state such as attempts or history was not consistently initialized
-  or reset for a new round.
+- [x] **Bugs found:** The secret itself was already stored in Streamlit session
+  state, but the value passed to the comparison was converted to a string on
+  every other guess. That caused a type error and a fallback that compared
+  digit strings lexicographically, producing incorrect hints and making the
+  secret seem unreliable. The too-high and too-low hints were also reversed,
+  the displayed range was hardcoded instead of following the selected
+  difficulty, and a new game did not consistently reset all round state.
 - [x] **Fixes applied:** The secret and other round data are now initialized
-  in `st.session_state`, so rerunning the app preserves the secret, attempts,
-  score, status, and history until a new game is started. Guess input is parsed
-  into an integer and compared with the integer secret; the comparison returns
-  the corresponding correct, too-high, or too-low hint. Difficulty-specific
-  ranges and attempt limits are used in the interface, and **New Game** resets
-  the round state and chooses a secret in the selected range. The reusable
-  parsing, comparison, range, and scoring logic lives in `logic_utils.py` and
-  is covered by the tests in `tests/test_game_logic.py`.
+  and preserved in `st.session_state`, including across Streamlit reruns.
+  Guesses are parsed as integers and compared to the integer secret, with
+  higher/lower messages corrected to match the comparison. The displayed
+  range follows the selected difficulty, and **New Game** resets the score,
+  attempts, status, and history and chooses a secret in that difficulty's
+  range. The reusable parsing, comparison, range, and scoring logic lives in
+  `logic_utils.py` and is covered by the tests in `tests/test_game_logic.py`.
 
-## 📸 Demo
-
-### Demo Walkthrough
+## 📸 Demo Walkthrough
 
 This walkthrough follows one complete game from the first screen to the win
 message. The example uses **Normal** difficulty and assumes the randomly chosen
@@ -122,6 +119,21 @@ warning is hidden, but guesses are still checked and scored as usual.
 The walkthrough describes the game’s visible behavior; the Developer Debug
 Info panel is there for investigating the game and is not needed to play.
 
+**Screenshot** *(optional)*: Add a screenshot of a winning game here if you
+captured one.
+
+## 🧪 Test Results
+
+```
+$ python -m pytest tests/
+============================= test session starts ==============================
+collected 17 items
+
+tests/test_game_logic.py .................                               [100%]
+
+============================== 17 passed in 0.02s ==============================
+```
+
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
